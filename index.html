@@ -1,0 +1,13 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ingresar · SusCaballos</title><link rel="stylesheet" href="css/style.css"></head><body><main>
+<div class="hero"><h1>SusCaballos</h1><p>Conocimiento, eventos y comunidad del Caballo Criollo Colombiano en un solo lugar.</p></div>
+<div class="row"><section class="card"><h2>Iniciar sesión</h2><form id="lf"><label>Correo<input type="email" id="le" required></label><label>Contraseña<input type="password" id="lp" required></label><p class="err" id="lerr"></p><button>Iniciar sesión</button></form>
+</section>
+<section class="card"><h2>Crear perfil</h2><form id="rf"><label>Nombre<input id="rn" required></label><label>Correo<input type="email" id="re" required></label><label>Contraseña (mín. 6)<input type="password" id="rp" minlength="6" required></label>
+<label>Soy<select id="rr"></select></label><p>Temas de interés</p><div class="chk" id="ri"></div><p class="err" id="rerr"></p><br><button>Crear perfil</button></form></section></div>
+</main><script type="module">
+import {$,$$,ROLES,interestBoxes,waitUser,login,register,authMsg} from './js/app.js';
+waitUser().then(u=>u&&(location.href='menu.html'));
+$('#rr').innerHTML=ROLES.map(r=>`<option>${r}</option>`).join('');$('#ri').innerHTML=interestBoxes();
+$('#lf').onsubmit=async e=>{e.preventDefault();try{await login($('#le').value.trim(),$('#lp').value);location.href='menu.html'}catch(x){$('#lerr').textContent=authMsg(x)}};
+$('#rf').onsubmit=async e=>{e.preventDefault();try{await register({name:$('#rn').value.trim(),email:$('#re').value.trim(),pass:$('#rp').value,role:$('#rr').value,interests:$$('[name=int]:checked').map(i=>i.value)});location.href='menu.html'}catch(x){$('#rerr').textContent=authMsg(x)}};
+</script></body></html>

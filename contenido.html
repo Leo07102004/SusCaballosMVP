@@ -1,0 +1,11 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contenido · SusCaballos</title><link rel="stylesheet" href="css/style.css"></head><body><main>
+<h1>Contenido educativo y técnico</h1><div class="row"><input id="q" placeholder="Buscar por título, tema o etiqueta"><select id="c"><option value="">Todas las categorías</option></select><select id="t"><option value="">Todos los tipos</option><option>Artículo</option><option>Video</option><option>Curso</option></select></div><p class="m" id="n"></p><div id="l"></div>
+</main><script type="module">
+import {$,$$,esc,CATS,layout,getContents,hit} from './js/app.js';
+if(await layout('contenido')){const cs=await getContents();$('#c').innerHTML+=Object.keys(CATS).map(c=>`<option>${c}</option>`).join('');
+const r=()=>{const q=$('#q').value.toLowerCase(),c=$('#c').value,t=$('#t').value,f=cs.filter(x=>(!c||x.cat==c)&&(!t||x.type==t)&&(x.title+x.tags.join(' ')+x.cat).toLowerCase().includes(q));
+$('#n').textContent=f.length+' resultado(s) · '+cs.length+' contenidos centralizados';
+$('#l').innerHTML=f.map(x=>`<details class="card" id="${x.id}"><summary>${esc(x.title)}</summary><span class="tag cat">${x.cat}</span><span class="tag">${x.type}</span>${x.tags.map(g=>`<span class="tag">#${esc(g)}</span>`).join('')}<p>${esc(x.body)}</p><span class="m">${esc(x.author)} · ${new Date(x.ts).toLocaleDateString('es-CO')}</span></details>`).join('')||'<p class="m">Sin resultados. Quita algún filtro.</p>';
+$$('details').forEach(d=>d.ontoggle=()=>d.open&&hit('contentViews'));if(location.hash){const d=$(location.hash);d&&(d.open=true)}};
+$('#q').oninput=$('#c').onchange=$('#t').onchange=r;r()}
+</script></body></html>

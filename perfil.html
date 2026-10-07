@@ -1,0 +1,9 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Perfil · SusCaballos</title><link rel="stylesheet" href="css/style.css"></head><body><main>
+<h1>Mi perfil</h1><form class="card" id="f"><label>Nombre<input id="n" required></label><label>Correo<input id="e" disabled></label><label>Soy<select id="r"></select></label><label>Sobre mí<textarea id="b" rows="3"></textarea></label><p>Temas de interés (definen tus notificaciones)</p><div class="chk" id="i"></div><br><button>Guardar cambios</button> <span id="ok" class="m"></span></form>
+</main><script type="module">
+import {$,$$,ROLES,interestBoxes,layout,saveProfile} from './js/app.js';
+const u=await layout('perfil');
+if(u){$('#n').value=u.name;$('#e').value=u.email;$('#b').value=u.bio||'';$('#i').innerHTML=interestBoxes(u.interests);
+$('#r').innerHTML=(u.admin?['Administrador']:ROLES).map(r=>`<option${r==u.role?' selected':''}>${r}</option>`).join('');
+$('#f').onsubmit=async e=>{e.preventDefault();await saveProfile(u.uid,{name:$('#n').value.trim(),role:$('#r').value,bio:$('#b').value.trim(),interests:$$('[name=int]:checked').map(i=>i.value)});$('#ok').textContent='Cambios guardados'}}
+</script></body></html>

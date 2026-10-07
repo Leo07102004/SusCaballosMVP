@@ -1,0 +1,19 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Publicar · SusCaballos</title><link rel="stylesheet" href="css/style.css"></head><body><main>
+<h1>Publicar contenido</h1><p class="m">Publica una sola vez: el sistema clasifica, centraliza, prepara las 5 versiones por canal y notifica a los usuarios interesados.</p>
+<form class="card" id="f"><div class="row"><label>Tipo<select id="ty"><option>Artículo</option><option>Video</option><option>Curso</option><option>Evento</option></select></label><label class="ev" hidden>Fecha<input type="date" id="dt"></label><label class="ev" hidden>Ciudad<input id="ci"></label></div>
+<label>Título<input id="ti" required></label><label>Descripción o contenido<textarea id="bo" rows="4" required></textarea></label><button>Publicar y distribuir</button></form>
+<div id="res"></div><h2>Indicadores de automatización</h2><div class="grid" id="k"></div><h2>Historial</h2><div id="lg"></div>
+</main><script type="module">
+import {$,$$,esc,layout,publish,getLog,getMetrics,getContents,seedData} from './js/app.js';
+const u=await layout('publicar',1);
+if(u){const MAN=30;// supuesto AS-IS: 5 canales x 6 min de publicación manual
+$('#ty').onchange=()=>$$('.ev').forEach(e=>e.hidden=$('#ty').value!='Evento');
+const kp=async()=>{const l=await getLog(),m=await getMetrics(),avg=l.length?Math.round(l.reduce((a,x)=>a+x.ms,0)/l.length):0;
+$('#k').innerHTML=[[l.length,'publicaciones realizadas'],[avg+' ms','tiempo medio de proceso (vs ~'+MAN+' min manual)'],[l.length*4,'reprocesos evitados (4 canales extra por pieza)'],[l.length*MAN+' min','esfuerzo manual estimado ahorrado'],[(m.contentViews||0)+(m.eventsViews||0),'consultas de contenido y eventos']].map(([v,t])=>`<div class="card"><div class="kpi">${v}</div><span class="m">${t}</span></div>`).join('');
+$('#lg').innerHTML=l.slice(0,8).map(x=>`<div class="card"><b>${esc(x.title)}</b><br><span class="m">${x.cat} · ${x.ms} ms · ${x.notified} notificados · ${new Date(x.ts).toLocaleString('es-CO')}</span></div>`).join('')||'<p class="m">Aún no hay publicaciones. Usa el formulario.</p>'};
+if(!(await getContents()).length){$('#res').innerHTML='<div class="card"><p>La base está vacía.</p><button id="sd">Cargar datos de ejemplo</button></div>';$('#sd').onclick=async()=>{await seedData();$('#res').innerHTML='<p class="m">Datos de ejemplo cargados.</p>'}}
+$('#f').onsubmit=async e=>{e.preventDefault();if($('#ty').value=='Evento'&&!$('#dt').value)return alert('Indica la fecha del evento.');
+const r=await publish({type:$('#ty').value,title:$('#ti').value.trim(),body:$('#bo').value.trim(),date:$('#dt').value,city:$('#ci').value.trim()},u.name);
+$('#res').innerHTML=`<div class="card"><h2>Publicado en ${r.ms} ms</h2><p>Categoría detectada: <span class="tag cat">${r.c.cat}</span>${r.c.tags.map(t=>`<span class="tag">#${esc(t)}</span>`).join('')} · ${r.notified} usuario(s) notificado(s)</p>`+Object.entries(r.ch).map(([k,v])=>`<h3>${k}</h3><pre>${esc(v)}</pre><button type="button" class="alt" data-c="${esc(v)}">Copiar</button>`).join('')+'</div>';
+$$('[data-c]').forEach(b=>b.onclick=()=>{navigator.clipboard&&navigator.clipboard.writeText(b.dataset.c);b.textContent='Copiado'});$('#f').reset();kp()};kp()}
+</script></body></html>

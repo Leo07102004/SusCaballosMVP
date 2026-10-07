@@ -1,0 +1,13 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Inicio · SusCaballos</title><link rel="stylesheet" href="css/style.css"></head><body><main>
+<div class="hero"><h1 id="hi"></h1><p>Esto es lo nuevo para ti en la comunidad.</p></div>
+<h2>Módulos</h2><div class="grid"><a class="card" href="eventos.html"><h3>Eventos ecuestres</h3><span class="m">Calendario y filtros por ciudad</span></a><a class="card" href="contenido.html"><h3>Contenido educativo</h3><span class="m">Artículos, videos y cursos organizados</span></a><a class="card" href="chat.html"><h3>Chat global</h3><span class="m">Conversa con criadores, jinetes y jueces</span></a></div>
+<h2>Notificaciones</h2><div id="nt"></div><h2>Últimos contenidos</h2><div id="lc"></div><h2>Próximos eventos</h2><div id="ev"></div>
+</main><script type="module">
+import {$,esc,layout,getNotifs,markRead,getContents,getEvents} from './js/app.js';
+const u=await layout('menu');
+if(u){$('#hi').textContent='Hola, '+u.name.split(' ')[0];const ns=await getNotifs(u.uid);
+$('#nt').innerHTML=ns.slice(0,5).map(x=>`<div class="card" ${x.read?'':'style="border-left:4px solid var(--b)"'}>${esc(x.msg)} <span class="m">${new Date(x.ts).toLocaleString('es-CO')}</span></div>`).join('')||'<p class="m">Sin notificaciones. Se generan cuando se publica contenido de tus temas de interés.</p>';markRead(ns);
+$('#lc').innerHTML=(await getContents()).slice(0,3).map(c=>`<a class="card" style="display:block;text-decoration:none;color:inherit" href="contenido.html#${c.id}"><span class="tag cat">${c.cat}</span><span class="tag">${c.type}</span><br><b>${esc(c.title)}</b></a>`).join('')||'<p class="m">Aún no hay contenidos.</p>';
+const today=new Date().toISOString().slice(0,10);
+$('#ev').innerHTML=(await getEvents()).filter(e=>e.date>=today).slice(0,3).map(e=>`<div class="card"><b>${esc(e.name)}</b><br><span class="m">${e.date} · ${esc(e.city)}</span></div>`).join('')||'<p class="m">No hay eventos próximos.</p>'}
+</script></body></html>

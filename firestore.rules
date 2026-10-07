@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    function signed(){ return request.auth != null; }
+    function isAdmin(){ return signed() && get(/databases/$(db)/documents/users/$(request.auth.uid)).data.admin == true; }
+    match /users/{uid} {
+      allow read: if signed() && (request.auth.uid == uid || isAdmin());
+      allow create: if request.auth.uid == uid && request.resource.data.admin == false;
+      allow update: if request.auth.uid == uid && request.resource.data.admin == resource.data.admin;
+    }
+    match /contents/{id} { allow read: if signed(); allow write: if isAdmin(); }
+    match /events/{id}   { allow read: if signed(); allow write: if isAdmin(); }
+    match /chat/{id} {
+      allow read: if signed();
+      allow create: if signed() && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.t is string && request.resource.data.t.size() <= 300;
+    }
+    match /notifs/{id} {
+      allow read, update: if signed() && resource.data.to == request.auth.uid;
+      allow create: if isAdmin();
+    }
+    match /log/{id}  { allow read, create: if isAdmin(); }
+    match /meta/{id} { allow read, write: if signed(); }
+  }
+}

@@ -1,0 +1,10 @@
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Eventos · SusCaballos</title><link rel="stylesheet" href="css/style.css"></head><body><main>
+<h1>Eventos ecuestres</h1><div class="row"><input id="q" placeholder="Buscar por nombre o ciudad"><select id="c"><option value="">Todas las categorías</option></select></div><div id="l"></div>
+</main><script type="module">
+import {$,esc,CATS,layout,getEvents,hit} from './js/app.js';
+if(await layout('eventos')){hit('eventsViews');const ev=await getEvents();
+$('#c').innerHTML+=Object.keys(CATS).map(c=>`<option>${c}</option>`).join('');
+const r=()=>{const q=$('#q').value.toLowerCase(),c=$('#c').value,f=ev.filter(e=>(!c||e.cat==c)&&(e.name+e.city).toLowerCase().includes(q));
+$('#l').innerHTML=f.map(e=>`<div class="card"><span class="tag cat">${e.cat}</span><h3>${esc(e.name)}</h3><span class="m">${e.date} · ${esc(e.city)}</span><p>${esc(e.desc)}</p></div>`).join('')||'<p class="m">Ningún evento coincide. Prueba con otra ciudad o categoría.</p>'};
+$('#q').oninput=$('#c').onchange=r;r()}
+</script></body></html>
