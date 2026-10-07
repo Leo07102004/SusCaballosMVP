@@ -1,4 +1,3 @@
-// Pega aquí la configuración de tu app web (Firebase Console > Configuración del proyecto > Tus apps).
 // Estos valores son públicos por diseño; la seguridad la dan las reglas de Firestore (firestore.rules).
 export const firebaseConfig = {
     apiKey: "AIzaSyA5NsUqIgR-5Vq2bAzAMcRSe1Y8lUKTDmQ",
