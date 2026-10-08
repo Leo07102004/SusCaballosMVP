@@ -1,9 +1,9 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ingresar · SusCaballos</title><link rel="stylesheet" href="css/style.css"></head><body><main>
-<div class="hero"><h1>SusCaballos</h1><p>Conocimiento, eventos y comunidad del Caballo Criollo Colombiano en un solo lugar.</p></div>
-<div class="row"><section class="card"><h2>Iniciar sesión</h2><form id="lf"><label>Correo<input type="email" id="le" required></label><label>Contraseña<input type="password" id="lp" required></label><p class="err" id="lerr"></p><button>Iniciar sesión</button></form>
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#0d0d0c"><title>Ingresar · SusCaballos</title><link rel="stylesheet" href="css/style.css"></head><body><main class="login-page">
+<div class="hero"><img class="hero-logo" src="assets/suscaballos-logo.png" alt="Logo de SusCaballos"><span class="eyebrow">La comunidad del caballo criollo colombiano</span><h1>Pasión ecuestre, conocimiento que nos une.</h1><p>Descubre eventos, aprende de expertos y conecta con la comunidad de SusCaballos.</p></div>
+<div class="row"><section class="card"><h2>Iniciar sesión</h2><form id="lf"><label>Correo<input type="email" id="le" autocomplete="email" required></label><label>Contraseña<input type="password" id="lp" autocomplete="current-password" required></label><p class="err" id="lerr" role="alert"></p><button>Iniciar sesión</button></form>
 </section>
-<section class="card"><h2>Crear perfil</h2><form id="rf"><label>Nombre<input id="rn" required></label><label>Correo<input type="email" id="re" required></label><label>Contraseña (mín. 6)<input type="password" id="rp" minlength="6" required></label>
-<label>Soy<select id="rr"></select></label><p>Temas de interés</p><div class="chk" id="ri"></div><p class="err" id="rerr"></p><br><button>Crear perfil</button></form></section></div>
+<section class="card"><h2>Crear perfil</h2><form id="rf"><label>Nombre<input id="rn" autocomplete="name" required></label><label>Correo<input type="email" id="re" autocomplete="email" required></label><label>Contraseña (mín. 6)<input type="password" id="rp" autocomplete="new-password" minlength="6" required></label>
+<label>Soy<select id="rr"></select></label><p>Temas de interés</p><div class="chk" id="ri"></div><p class="err" id="rerr" role="alert"></p><br><button>Crear perfil</button></form></section></div>
 </main><script type="module">
 import {$,$$,ROLES,interestBoxes,waitUser,login,register,authMsg} from './js/app.js';
 waitUser().then(u=>u&&(location.href='menu.html'));

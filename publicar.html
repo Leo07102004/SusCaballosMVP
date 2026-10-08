@@ -2,7 +2,7 @@
 <h1>Publicar contenido</h1><p class="m">Publica una sola vez: el sistema clasifica, centraliza, prepara las 5 versiones por canal y notifica a los usuarios interesados.</p>
 <form class="card" id="f"><div class="row"><label>Tipo<select id="ty"><option>Artículo</option><option>Video</option><option>Curso</option><option>Evento</option></select></label><label class="ev" hidden>Fecha<input type="date" id="dt"></label><label class="ev" hidden>Ciudad<input id="ci"></label></div>
 <label>Título<input id="ti" required></label><label>Descripción o contenido<textarea id="bo" rows="4" required></textarea></label><button>Publicar y distribuir</button></form>
-<div id="res"></div><h2>Indicadores de automatización</h2><div class="grid" id="k"></div><h2>Historial</h2><div id="lg"></div>
+<div id="res" role="status"></div><h2>Indicadores de automatización</h2><div class="grid" id="k"></div><h2>Historial</h2><div id="lg"></div>
 </main><script type="module">
 import {$,$$,esc,layout,publish,getLog,getMetrics,getContents,seedData} from './js/app.js';
 const u=await layout('publicar',1);

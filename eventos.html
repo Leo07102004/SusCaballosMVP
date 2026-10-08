@@ -1,5 +1,5 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Eventos · SusCaballos</title><link rel="stylesheet" href="css/style.css"></head><body><main>
-<h1>Eventos ecuestres</h1><div class="row"><input id="q" placeholder="Buscar por nombre o ciudad"><select id="c"><option value="">Todas las categorías</option></select></div><div id="l"></div>
+<h1>Eventos ecuestres</h1><p class="section-note">Encuentra ferias, competencias y encuentros para vivir el mundo ecuestre de cerca.</p><div class="row"><input id="q" aria-label="Buscar eventos" placeholder="Buscar por nombre o ciudad"><select id="c" aria-label="Filtrar eventos por categoría"><option value="">Todas las categorías</option></select></div><div id="l"><p class="m">Cargando eventos…</p></div>
 </main><script type="module">
 import {$,esc,CATS,layout,getEvents,hit} from './js/app.js';
 if(await layout('eventos')){hit('eventsViews');const ev=await getEvents();

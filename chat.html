@@ -1,5 +1,5 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Chat · SusCaballos</title><link rel="stylesheet" href="css/style.css"></head><body><main>
-<h1>Chat de la comunidad</h1><p class="m">Los mensajes se sincronizan en tiempo real entre todos los usuarios conectados.</p><div class="card" id="msgs" aria-live="polite"></div><form class="row" id="f"><input id="m" placeholder="Escribe un mensaje" maxlength="300" required style="flex:4"><button style="flex:1">Enviar</button></form>
+<h1>Chat de la comunidad</h1><p class="section-note">Comparte experiencias y conversa en tiempo real con otros integrantes de SusCaballos.</p><div class="card" id="msgs" aria-live="polite"><p class="m">Conectando con la comunidad…</p></div><form class="row chat-form" id="f"><input id="m" aria-label="Tu mensaje" placeholder="Escribe un mensaje" maxlength="300" required><button>Enviar</button></form>
 </main><script type="module">
 import {$,esc,layout,sendMsg,onChat,hit} from './js/app.js';
 const u=await layout('chat');
