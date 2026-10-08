@@ -1,10 +1,11 @@
 <!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Eventos · SusCaballos</title><link rel="stylesheet" href="css/style.css"></head><body><main>
-<h1>Eventos ecuestres</h1><p class="section-note">Encuentra ferias, competencias y encuentros para vivir el mundo ecuestre de cerca.</p><div class="row"><input id="q" aria-label="Buscar eventos" placeholder="Buscar por nombre o ciudad"><select id="c" aria-label="Filtrar eventos por categoría"><option value="">Todas las categorías</option></select></div><div id="l"><p class="m">Cargando eventos…</p></div>
+
+<div class="page-intro"><span class="eyebrow">SUSCABALLOS / AGENDA</span><h1>Eventos ecuestres</h1></div><div class="row"><input id="q" placeholder="Buscar por nombre o ciudad"><select id="c"><option value="">Todas las categorías</option></select></div><p id="count" class="m" aria-live="polite"></p><div id="l" class="grid"></div>
 </main><script type="module">
 import {$,esc,CATS,layout,getEvents,hit} from './js/app.js';
 if(await layout('eventos')){hit('eventsViews');const ev=await getEvents();
 $('#c').innerHTML+=Object.keys(CATS).map(c=>`<option>${c}</option>`).join('');
 const r=()=>{const q=$('#q').value.toLowerCase(),c=$('#c').value,f=ev.filter(e=>(!c||e.cat==c)&&(e.name+e.city).toLowerCase().includes(q));
-$('#l').innerHTML=f.map(e=>`<div class="card"><span class="tag cat">${e.cat}</span><h3>${esc(e.name)}</h3><span class="m">${e.date} · ${esc(e.city)}</span><p>${esc(e.desc)}</p></div>`).join('')||'<p class="m">Ningún evento coincide. Prueba con otra ciudad o categoría.</p>'};
-$('#q').oninput=$('#c').onchange=r;r()}
+$('#count').textContent=f.length+' eventos encontrados';$('#l').innerHTML=f.map(e=>`<div class="card" id="${esc(e.id)}"><span class="tag cat">${esc(e.cat)}</span><h3>${esc(e.name)}</h3><span class="m">${esc(e.date)} · ${esc(e.city)}</span><p>${esc(e.desc)}</p></div>`).join('')||'<p class="m">Ningún evento coincide. Prueba con otra ciudad o categoría.</p>'};
+$('#q').oninput=$('#c').onchange=r;r();if(location.hash){const target=document.getElementById(decodeURIComponent(location.hash.slice(1)));if(target){target.scrollIntoView();target.classList.add('highlight')}}}
 </script></body></html>

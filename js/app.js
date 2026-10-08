@@ -38,18 +38,34 @@ export async function seedData(){const b=F.writeBatch(db),t=new Date().toISOStri
 .forEach(([name,city,date,cat,desc])=>b.set(F.doc(col('events')),{name,city,date,cat,desc}));await b.commit()}
 // ---- AUTOMATIZACIÓN 1: clasificación (categoría + etiquetas) por reglas
 export function classify(txt){txt=txt.toLowerCase();let cat='General',max=0,tags=[];for(const[c,ks]of Object.entries(CATS)){const h=ks.filter(k=>txt.includes(k));if(h.length>max){max=h.length;cat=c}tags.push(...h)}return{cat,tags:[...new Set(tags)].slice(0,5)}}
-// ---- AUTOMATIZACIÓN 2: versiones por canal
-export function channels(c){const s=c.body.slice(0,140),h=c.tags.map(t=>'#'+t.replace(/\W/g,'')).join(' '),u=location.origin+location.pathname.replace(/[^/]*$/,'')+'contenido.html#'+c.id;
-return{Instagram:`📌 ${c.title}\n\n${s}…\n\n${h} #CaballoCriolloColombiano`,Facebook:`${c.title}\n${s}…\nLee más: ${u}`,YouTube:`${c.title} | SusCaballos\n\n${s}\n\n${u}\n${h}`,WhatsApp:`*${c.title}*\n${s}…\n${u}`,TikTok:`${c.title.slice(0,80)} ${h} #suscaballos`}}
-// ---- AUTOMATIZACIÓN 3: publicar -> clasificar -> centralizar -> canales -> notificar -> medir
-export async function publish(d,author){const t0=performance.now(),cl=classify(d.title+' '+d.body),c={type:d.type,title:d.title,body:d.body,cat:cl.cat,tags:cl.tags,author,ts:new Date().toISOString()};
-c.id=d.type=='Evento'?(await F.addDoc(col('events'),{name:d.title,city:d.city||'Por definir',date:d.date,cat:cl.cat,desc:d.body})).id:(await F.addDoc(col('contents'),c)).id;
-const us=(await list('users',F.where('interests','array-contains',cl.cat))).filter(u=>!u.admin),b=F.writeBatch(db);
-us.forEach(u=>b.set(F.doc(col('notifs')),{to:u.id,msg:`Nuevo en ${cl.cat}: ${d.title}`,ts:Date.now(),read:false}));await b.commit();
-const ms=Math.round(performance.now()-t0);await F.addDoc(col('log'),{title:d.title,cat:cl.cat,ms,notified:us.length,ts:Date.now()});
-return{c,ch:channels(c),notified:us.length,ms}}
+// ---- AUTOMATIZACIÓN 2: versiones sugeridas para canales externos (NO publica en redes).
+export function channels(c){
+ const text=String(c.body||'');const excerpt=text.slice(0,140);const tags=(c.tags||[]).map(t=>'#'+t.normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]/g,'')).join(' ');
+ const base=location.href.replace(/[^/]*([?#].*)?$/,'');
+ const link=base+(c.type==='Evento'?'eventos.html':'contenido.html')+'#'+encodeURIComponent(c.id);
+ return {Instagram:`📌 ${c.title}\n\n${excerpt}…\n\n${tags} #CaballoCriolloColombiano`,Facebook:`${c.title}\n${excerpt}…\nLee más: ${link}`,YouTube:`${c.title} | SusCaballos\n\n${excerpt}\n\n${link}\n${tags}`,WhatsApp:`*${c.title}*\n${excerpt}…\n${link}`,TikTok:`${c.title.slice(0,80)} ${tags} #suscaballos`};
+}
+// ---- AUTOMATIZACIÓN 3: centralizar -> clasificar -> proponer copys -> notificar -> registrar.
+// Las versiones se COPIAN manualmente: el MVP no está conectado a APIs de redes sociales.
+export async function publish(d,author){
+ const t0=performance.now(),cl=classify(d.title+' '+d.body);
+ const isEvent=d.type==='Evento';
+ if(!d.title?.trim()||!d.body?.trim())throw Error('El título y la descripción son obligatorios.');
+ if(isEvent&&!/^\d{4}-\d{2}-\d{2}$/.test(d.date||''))throw Error('Indica una fecha válida para el evento.');
+ const c={type:d.type,title:d.title.trim(),body:d.body.trim(),cat:cl.cat,tags:cl.tags,author,ts:new Date().toISOString()};
+ c.id=isEvent?(await F.addDoc(col('events'),{name:c.title,city:d.city||'Por definir',date:d.date,cat:c.cat,desc:c.body,ts:c.ts})).id:(await F.addDoc(col('contents'),c)).id;
+ const warnings=[];let notified=0;
+ try{
+   const us=(await list('users',F.where('interests','array-contains',cl.cat))).filter(u=>!u.admin);
+   // Firestore writeBatch tiene límite de 500 operaciones. Se divide para grupos grandes.
+   for(let i=0;i<us.length;i+=450){const batch=F.writeBatch(db);const group=us.slice(i,i+450);group.forEach(u=>batch.set(F.doc(col('notifs')),{to:u.id,msg:`Nuevo en ${cl.cat}: ${c.title}`,ts:Date.now(),read:false}));await batch.commit();notified+=group.length;}
+ }catch(e){warnings.push('El contenido se guardó, pero algunas notificaciones no se pudieron enviar: '+(e.code||e.message));}
+ const ms=Math.round(performance.now()-t0);
+ try{await F.addDoc(col('log'),{title:c.title,type:c.type,cat:c.cat,ms,notified,ts:Date.now(),publicationId:c.id});}catch(e){warnings.push('No se pudo registrar la medición en el historial: '+(e.code||e.message));}
+ return {c,ch:channels(c),notified,ms,warnings};
+}
 export async function layout(a,adm){const u=await waitUser();if(!u||(adm&&!u.admin)){location.href=u?'menu.html':'index.html';return null}
 const L=[['menu','Inicio'],['eventos','Eventos'],['contenido','Contenido'],['chat','Chat'],...(u.admin?[['publicar','Publicar']]:[]),['perfil','Perfil']],
 n=(await getNotifs(u.uid)).filter(x=>!x.read).length;
-document.body.insertAdjacentHTML('afterbegin',`<header class="site-header"><a class="brand" href="menu.html" aria-label="SusCaballos, ir al inicio"><img src="assets/suscaballos-logo.png" alt=""><span class="brand-name">Sus<span>Caballos</span></span></a><nav aria-label="Navegación principal">${L.map(([p,t])=>`<a href="${p}.html"${p==a?' class="on" aria-current="page"':''}>${t}</a>`).join('')}</nav><div class="account">${n?`<a class="notification-link" href="menu.html" aria-label="${n} notificaciones sin leer">🔔 ${n}</a>`:''}<span class="user-name">${esc(u.name)}</span><a href="#" id="out">Salir</a></div></header>`);
+document.body.insertAdjacentHTML('afterbegin',`<header><a class="brand" href="menu.html" aria-label="SusCaballos, ir al inicio"><img src="assets/suscaballos-logo.png" alt="Logo SusCaballos"><span>SusCaballos</span></a><nav>${L.map(([p,t])=>`<a href="${p}.html"${p==a?' class=on':''}>${t}</a>`).join('')}</nav><span class="account">${n?`<a href="menu.html" aria-label="${n} notificaciones sin leer">🔔 ${n}</a> `:''}${esc(u.name)} · <a href="#" id=out>Salir</a></span></header>`);
 $('#out').onclick=async e=>{e.preventDefault();await logout();location.href='index.html'};return u}
