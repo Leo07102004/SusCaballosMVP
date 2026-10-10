@@ -1,6 +1,6 @@
 # SusCaballos – MVP (Capítulo 8)
 
-Prototipo funcional (HTML + CSS + JavaScript). Sin servidor ni instalación; los datos viven en `localStorage` del navegador.
+Prototipo funcional (HTML + CSS + JavaScript). Sin servidor ni instalación; los datos se almacenan en conexión con Firebase.
 
 ## Estructura
 | Archivo | Función |
