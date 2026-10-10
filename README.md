@@ -1,6 +1,6 @@
 # SusCaballos – MVP (Capítulo 8)
 
-Prototipo funcional 100% estático (HTML + CSS + JavaScript). Sin servidor ni instalación; los datos viven en `localStorage` del navegador.
+Prototipo funcional (HTML + CSS + JavaScript). Sin servidor ni instalación; los datos viven en `localStorage` del navegador.
 
 ## Estructura
 | Archivo | Función |
@@ -14,7 +14,7 @@ Prototipo funcional 100% estático (HTML + CSS + JavaScript). Sin servidor ni in
 | `perfil.html` | Edición de perfil |
 | `js/app.js` | Datos semilla, `classify()`, `channels()`, `publish()`, layout |
 
-## Configuración de Firebase (una sola vez)
+## Configuración de Firebase
 1. https://console.firebase.google.com → **Agregar proyecto** (sin Analytics).
 2. **Compilación → Authentication → Comenzar → Correo/contraseña → Habilitar**.
 3. **Compilación → Firestore Database → Crear base de datos** (ubicación `southamerica-east1` o la más cercana; modo producción).
